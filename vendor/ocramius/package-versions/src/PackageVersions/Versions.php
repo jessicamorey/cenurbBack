@@ -11,6 +11,8 @@ namespace PackageVersions;
 final class Versions
 {
     const VERSIONS = array (
+  'api-platform/api-pack' => '1.1.0@33ade8a1dc23868828788fe1bf3e54291ce54843',
+  'api-platform/core' => 'v2.2.9@d6b01d76bde20350f81fd5090689365376fc1f8e',
   'doctrine/annotations' => 'v1.4.0@54cacc9b81758b14e3ce750f205a393d52339e97',
   'doctrine/cache' => 'v1.6.2@eb152c5100571c7a45470ff2a35095ab3f3b900b',
   'doctrine/collections' => 'v1.4.0@1a4fb7e902202c33cce8c55989b945612943c2ba',
@@ -28,6 +30,7 @@ final class Versions
   'fig/link-util' => '1.0.0@1a07821801a148be4add11ab0603e4af55a72fac',
   'jdorn/sql-formatter' => 'v1.2.17@64990d96e0959dff8e059dfcdc1af130728d92bc',
   'monolog/monolog' => '1.23.0@fd8c787753b3a2ad11bc60c063cff1358a32a3b4',
+  'nelmio/cors-bundle' => '1.5.4@548dc8ebd3984acd2f6d8787ab1dac2e9aa14254',
   'ocramius/package-versions' => '1.2.0@ad8a245decad4897cc6b432743913dad0d69753c',
   'ocramius/proxy-manager' => '2.0.4@a55d08229f4f614bf335759ed0cf63378feeb2e6',
   'phpdocumentor/reflection-common' => '1.0.1@21bdeb5f65d7ebf9f43b1b25d404f87deab5bfb6',
@@ -85,6 +88,7 @@ final class Versions
   'symfony/yaml' => 'v3.4.14@810af2d35fc72b6cf5c01116806d2b65ccaaf2e2',
   'twig/twig' => 'v2.5.0@6a5f676b77a90823c2d4eaf76137b771adf31323',
   'webmozart/assert' => '1.3.0@0df1908962e7a3071564e857d86874dad1ef204a',
+  'willdurand/negotiation' => 'v2.3.1@03436ededa67c6e83b9b12defac15384cb399dc9',
   'zendframework/zend-code' => '3.1.0@2899c17f83a7207f2d7f53ec2f421204d3beea27',
   'zendframework/zend-eventmanager' => '3.2.1@a5e2583a211f73604691586b8406ff7296a946dd',
   'easycorp/easy-log-handler' => 'v1.0.7@5f95717248d20684f88cfb878d8bf3d78aadcbba',
@@ -103,7 +107,7 @@ final class Versions
   'symfony/var-dumper' => 'v3.4.14@f62a394bd3de96f2f5e8f4c7d685035897fb3cb3',
   'symfony/web-profiler-bundle' => 'v3.4.14@4f61341f1f4a60cfbfbe2de45e6e9be29c4c450a',
   'symfony/web-server-bundle' => 'v3.4.14@dad213bcae92c8ed53facca633c7e79fb2e0e9d6',
-  'symfony/website-skeleton' => 'v3.4.14.5@',
+  '__root__' => 'No version set (parsed as 1.0.0)@',
 );
 
     private function __construct()
