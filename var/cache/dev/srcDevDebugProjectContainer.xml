@@ -210,11 +210,13 @@
     <parameter key="doctrine.class">Doctrine\Bundle\DoctrineBundle\Registry</parameter>
     <parameter key="doctrine.entity_managers" type="collection">
       <parameter key="default">doctrine.orm.default_entity_manager</parameter>
+      <parameter key="seo">doctrine.orm.seo_entity_manager</parameter>
     </parameter>
     <parameter key="doctrine.default_entity_manager">default</parameter>
     <parameter key="doctrine.dbal.connection_factory.types" type="collection"/>
     <parameter key="doctrine.connections" type="collection">
       <parameter key="default">doctrine.dbal.default_connection</parameter>
+      <parameter key="seo">doctrine.dbal.seo_connection</parameter>
     </parameter>
     <parameter key="doctrine.default_connection">default</parameter>
     <parameter key="doctrine.orm.configuration.class">Doctrine\ORM\Configuration</parameter>
@@ -627,6 +629,14 @@
     <service id="EasyCorp\EasyLog\EasyLogHandler" class="EasyCorp\EasyLog\EasyLogHandler" public="false">
       <argument>/home/jessica/Escritorio/Symfony/cenurbBack/var/log/dev.log</argument>
     </service>
+    <service id="App\Controller\SeoApisController" class="App\Controller\SeoApisController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <argument type="service" id="serializer"/>
+    </service>
+    <service id="App\Controller\TempUserController" class="App\Controller\TempUserController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <argument type="service" id="serializer"/>
+    </service>
     <service id="App\Repository\CensoMunicipioRepository" class="App\Repository\CensoMunicipioRepository" public="false" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
@@ -656,6 +666,10 @@
       <argument type="service" id="doctrine"/>
     </service>
     <service id="App\Repository\ProvinciasRepository" class="App\Repository\ProvinciasRepository" public="false" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="App\Repository\TempUserRepository" class="App\Repository\TempUserRepository" public="false" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
     </service>
@@ -2455,14 +2469,6 @@
         <argument>2048</argument>
       </call>
       <call method="addListener">
-        <argument>console.command</argument>
-        <argument type="collection">
-          <argument type="service" id="debug.debug_handlers_listener"/>
-          <argument>configure</argument>
-        </argument>
-        <argument>2048</argument>
-      </call>
-      <call method="addListener">
         <argument>kernel.request</argument>
         <argument type="collection">
           <argument type="service" id="router_listener"/>
@@ -2971,9 +2977,11 @@
         <argument type="service" id="property_info.serializer_extractor"/>
         <argument type="service" id="property_info.reflection_extractor"/>
         <argument type="service" id="doctrine.orm.default_entity_manager.property_info_extractor"/>
+        <argument type="service" id="doctrine.orm.seo_entity_manager.property_info_extractor"/>
       </argument>
       <argument type="iterator">
         <argument type="service" id="doctrine.orm.default_entity_manager.property_info_extractor"/>
+        <argument type="service" id="doctrine.orm.seo_entity_manager.property_info_extractor"/>
         <argument type="service" id="property_info.php_doc_extractor"/>
         <argument type="service" id="property_info.reflection_extractor"/>
       </argument>
@@ -3112,6 +3120,10 @@
         <argument>default</argument>
         <argument type="service" id="doctrine.dbal.logger.profiling.default"/>
       </call>
+      <call method="addLogger">
+        <argument>seo</argument>
+        <argument type="service" id="doctrine.dbal.logger.profiling.seo"/>
+      </call>
     </service>
     <service id="doctrine.dbal.connection_factory" class="Doctrine\Bundle\DoctrineBundle\ConnectionFactory">
       <argument type="collection"/>
@@ -3182,22 +3194,60 @@
     </service>
     <service id="doctrine.dbal.default_connection" class="Doctrine\DBAL\Connection" public="true">
       <argument type="collection">
+        <argument key="url">%env(DATABASE_URL)%</argument>
         <argument key="driver">pdo_mysql</argument>
         <argument key="charset">utf8mb4</argument>
-        <argument key="url">%env(resolve:DATABASE_URL)%</argument>
         <argument key="host">localhost</argument>
         <argument key="port">null</argument>
         <argument key="user">root</argument>
         <argument key="password">null</argument>
         <argument key="driverOptions" type="collection"/>
         <argument key="serverVersion">5.7</argument>
-        <argument key="defaultTableOptions" type="collection">
-          <argument key="charset">utf8mb4</argument>
-          <argument key="collate">utf8mb4_unicode_ci</argument>
-        </argument>
+        <argument key="defaultTableOptions" type="collection"/>
       </argument>
       <argument type="service" id="doctrine.dbal.default_connection.configuration"/>
       <argument type="service" id="doctrine.dbal.default_connection.event_manager"/>
+      <argument type="collection"/>
+      <factory service="doctrine.dbal.connection_factory" method="createConnection"/>
+    </service>
+    <service id="doctrine.dbal.seo_connection.configuration" class="Doctrine\DBAL\Configuration" public="false">
+      <call method="setSQLLogger">
+        <argument type="service" id="doctrine.dbal.logger.chain.seo"/>
+      </call>
+    </service>
+    <service id="doctrine.dbal.logger.profiling.seo" class="Doctrine\DBAL\Logging\DebugStack" public="false"/>
+    <service id="doctrine.dbal.logger.chain.seo" class="Doctrine\DBAL\Logging\LoggerChain" public="false">
+      <call method="addLogger">
+        <argument type="service" id="doctrine.dbal.logger"/>
+      </call>
+      <call method="addLogger">
+        <argument type="service" id="doctrine.dbal.logger.profiling.seo"/>
+      </call>
+    </service>
+    <service id="doctrine.dbal.seo_connection.event_manager" class="Symfony\Bridge\Doctrine\ContainerAwareEventManager" public="false">
+      <argument type="service" id="service_container"/>
+      <call method="addEventListener">
+        <argument type="collection">
+          <argument>loadClassMetadata</argument>
+        </argument>
+        <argument type="service" id="doctrine.orm.seo_listeners.attach_entity_listeners"/>
+      </call>
+    </service>
+    <service id="doctrine.dbal.seo_connection" class="Doctrine\DBAL\Connection" public="true">
+      <argument type="collection">
+        <argument key="url">%env(DATABASE_SEO_URL)%</argument>
+        <argument key="driver">pdo_mysql</argument>
+        <argument key="charset">utf8mb4</argument>
+        <argument key="host">localhost</argument>
+        <argument key="port">null</argument>
+        <argument key="user">root</argument>
+        <argument key="password">null</argument>
+        <argument key="driverOptions" type="collection"/>
+        <argument key="serverVersion">5.7</argument>
+        <argument key="defaultTableOptions" type="collection"/>
+      </argument>
+      <argument type="service" id="doctrine.dbal.seo_connection.configuration"/>
+      <argument type="service" id="doctrine.dbal.seo_connection.event_manager"/>
       <argument type="collection"/>
       <factory service="doctrine.dbal.connection_factory" method="createConnection"/>
     </service>
@@ -3219,7 +3269,7 @@
       <factory class="Doctrine\ORM\EntityManager" method="create"/>
     </service>
     <service id="doctrine.orm.container_repository_factory" class="Doctrine\Bundle\DoctrineBundle\Repository\ContainerRepositoryFactory" public="false">
-      <argument type="service" id="service_locator.qazjnwu"/>
+      <argument type="service" id="service_locator.ljawrna"/>
     </service>
     <service id="doctrine.orm.manager_configurator.abstract" class="Doctrine\Bundle\DoctrineBundle\ManagerConfigurator" abstract="true">
       <argument type="collection"/>
@@ -3371,7 +3421,7 @@
         <argument>Doctrine\ORM\EntityRepository</argument>
       </call>
       <call method="setNamingStrategy">
-        <argument type="service" id="doctrine.orm.naming_strategy.underscore"/>
+        <argument type="service" id="doctrine.orm.naming_strategy.default"/>
       </call>
       <call method="setQuoteStrategy">
         <argument type="service" id="doctrine.orm.quote_strategy.default"/>
@@ -3414,7 +3464,7 @@
       <argument type="service" id="service_container"/>
     </service>
     <service id="doctrine.orm.default_listeners.attach_entity_listeners" class="Doctrine\ORM\Tools\AttachEntityListenersListener">
-      <tag name="doctrine.event_listener" event="loadClassMetadata"/>
+      <tag name="doctrine.event_listener" event="loadClassMetadata" connection="default"/>
     </service>
     <service id="doctrine.orm.default_manager_configurator" class="Doctrine\Bundle\DoctrineBundle\ManagerConfigurator">
       <argument type="collection"/>
@@ -3433,6 +3483,103 @@
       <tag name="property_info.list_extractor" priority="-1001"/>
       <tag name="property_info.type_extractor" priority="-999"/>
       <argument type="service" id="doctrine.orm.default_entity_manager.metadata_factory"/>
+    </service>
+    <service id="doctrine.orm.seo_configuration" class="Doctrine\ORM\Configuration" public="false">
+      <call method="setEntityNamespaces">
+        <argument type="collection">
+          <argument key="Seo">App\Entity</argument>
+        </argument>
+      </call>
+      <call method="setMetadataCacheImpl">
+        <argument type="service" id="doctrine_cache.providers.doctrine.orm.seo_metadata_cache"/>
+      </call>
+      <call method="setQueryCacheImpl">
+        <argument type="service" id="doctrine_cache.providers.doctrine.orm.seo_query_cache"/>
+      </call>
+      <call method="setResultCacheImpl">
+        <argument type="service" id="doctrine_cache.providers.doctrine.orm.seo_result_cache"/>
+      </call>
+      <call method="setMetadataDriverImpl">
+        <argument type="service" id="doctrine.orm.seo_metadata_driver"/>
+      </call>
+      <call method="setProxyDir">
+        <argument>/home/jessica/Escritorio/Symfony/cenurbBack/var/cache/dev/doctrine/orm/Proxies</argument>
+      </call>
+      <call method="setProxyNamespace">
+        <argument>Proxies</argument>
+      </call>
+      <call method="setAutoGenerateProxyClasses">
+        <argument>true</argument>
+      </call>
+      <call method="setClassMetadataFactoryName">
+        <argument>Doctrine\ORM\Mapping\ClassMetadataFactory</argument>
+      </call>
+      <call method="setDefaultRepositoryClassName">
+        <argument>Doctrine\ORM\EntityRepository</argument>
+      </call>
+      <call method="setNamingStrategy">
+        <argument type="service" id="doctrine.orm.naming_strategy.default"/>
+      </call>
+      <call method="setQuoteStrategy">
+        <argument type="service" id="doctrine.orm.quote_strategy.default"/>
+      </call>
+      <call method="setEntityListenerResolver">
+        <argument type="service" id="doctrine.orm.seo_entity_listener_resolver"/>
+      </call>
+      <call method="setRepositoryFactory">
+        <argument type="service" id="doctrine.orm.container_repository_factory"/>
+      </call>
+    </service>
+    <service id="doctrine.orm.seo_annotation_metadata_driver" class="Doctrine\ORM\Mapping\Driver\AnnotationDriver" public="false">
+      <argument type="service" id="annotations.cached_reader"/>
+      <argument type="collection">
+        <argument>/home/jessica/Escritorio/Symfony/cenurbBack/src/Entity</argument>
+      </argument>
+    </service>
+    <service id="doctrine.orm.seo_metadata_driver" class="Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain" public="false">
+      <call method="addDriver">
+        <argument type="service" id="doctrine.orm.seo_annotation_metadata_driver"/>
+        <argument>App\Entity</argument>
+      </call>
+    </service>
+    <service id="doctrine_cache.providers.doctrine.orm.seo_metadata_cache" class="Doctrine\Common\Cache\ArrayCache" public="true">
+      <call method="setNamespace">
+        <argument>sf_orm_seo_7b1bf2f95ee9daa87ad6398bdc93efc0910936134f846730bcd04a4cb2f52aeb</argument>
+      </call>
+    </service>
+    <service id="doctrine_cache.providers.doctrine.orm.seo_result_cache" class="Doctrine\Common\Cache\ArrayCache" public="true">
+      <call method="setNamespace">
+        <argument>sf_orm_seo_7b1bf2f95ee9daa87ad6398bdc93efc0910936134f846730bcd04a4cb2f52aeb</argument>
+      </call>
+    </service>
+    <service id="doctrine_cache.providers.doctrine.orm.seo_query_cache" class="Doctrine\Common\Cache\ArrayCache" public="true">
+      <call method="setNamespace">
+        <argument>sf_orm_seo_7b1bf2f95ee9daa87ad6398bdc93efc0910936134f846730bcd04a4cb2f52aeb</argument>
+      </call>
+    </service>
+    <service id="doctrine.orm.seo_entity_listener_resolver" class="Doctrine\Bundle\DoctrineBundle\Mapping\ContainerAwareEntityListenerResolver">
+      <argument type="service" id="service_container"/>
+    </service>
+    <service id="doctrine.orm.seo_listeners.attach_entity_listeners" class="Doctrine\ORM\Tools\AttachEntityListenersListener">
+      <tag name="doctrine.event_listener" event="loadClassMetadata" connection="seo"/>
+    </service>
+    <service id="doctrine.orm.seo_manager_configurator" class="Doctrine\Bundle\DoctrineBundle\ManagerConfigurator">
+      <argument type="collection"/>
+      <argument type="collection"/>
+    </service>
+    <service id="doctrine.orm.seo_entity_manager" class="Doctrine\ORM\EntityManager" public="true" lazy="true">
+      <argument type="service" id="doctrine.dbal.seo_connection"/>
+      <argument type="service" id="doctrine.orm.seo_configuration"/>
+      <factory class="Doctrine\ORM\EntityManager" method="create"/>
+      <configurator service="doctrine.orm.seo_manager_configurator" method="configure"/>
+    </service>
+    <service id="doctrine.orm.seo_entity_manager.metadata_factory" class="Doctrine\Common\Persistence\Mapping\ClassMetadataFactory" public="false">
+      <factory service="doctrine.orm.seo_entity_manager" method="getMetadataFactory"/>
+    </service>
+    <service id="doctrine.orm.seo_entity_manager.property_info_extractor" class="Symfony\Bridge\Doctrine\PropertyInfo\DoctrineExtractor">
+      <tag name="property_info.list_extractor" priority="-1001"/>
+      <tag name="property_info.type_extractor" priority="-999"/>
+      <argument type="service" id="doctrine.orm.seo_entity_manager.metadata_factory"/>
     </service>
     <service id="doctrine_migrations.diff_command" class="Doctrine\Bundle\MigrationsBundle\Command\MigrationsDiffDoctrineCommand">
       <tag name="console.command"/>
@@ -4775,7 +4922,7 @@
       <argument type="service" id="api_platform.operation_path_resolver.generator"/>
     </service>
     <service id="api_platform.operation_path_resolver.generator" class="ApiPlatform\Core\PathResolver\OperationPathResolver" public="false">
-      <argument type="service" id="api_platform.path_segment_name_generator.underscore"/>
+      <argument type="service" id="api_platform.path_segment_name_generator.dash"/>
     </service>
     <service id="api_platform.operation_path_resolver.underscore" class="ApiPlatform\Core\PathResolver\UnderscoreOperationPathResolver" public="false">
       <deprecated>The "%service_id%" service is deprecated since API Platform 2.1 and will be removed in 3.0. Use "api_platform.path_segment_name_generator.underscore" instead.</deprecated>
@@ -5006,7 +5153,9 @@
       <argument type="service" id="api_platform.metadata.property.metadata_factory.serializer"/>
     </service>
     <service id="api_platform.metadata.extractor.yaml" class="ApiPlatform\Core\Metadata\Extractor\YamlExtractor" public="false">
-      <argument type="collection"/>
+      <argument type="collection">
+        <argument>/home/jessica/Escritorio/Symfony/cenurbBack/config/packages/apiplatform/tempUser.yml</argument>
+      </argument>
     </service>
     <service id="api_platform.metadata.resource.name_collection_factory.yaml" class="ApiPlatform\Core\Metadata\Resource\Factory\ExtractorResourceNameCollectionFactory" public="false">
       <argument type="service" id="api_platform.metadata.extractor.yaml"/>
@@ -5381,6 +5530,10 @@
       <argument>%api_platform.http_cache.vary%</argument>
       <argument>null</argument>
     </service>
+    <service id="instanceof.Symfony\Bundle\FrameworkBundle\Controller\Controller.0.App\Controller\SeoApisController" class="App\Controller\SeoApisController" public="false" autowire="true" abstract="true"/>
+    <service id="abstract.instanceof.App\Controller\SeoApisController" class="App\Controller\SeoApisController" public="false" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id="instanceof.Symfony\Bundle\FrameworkBundle\Controller\Controller.0.App\Controller\TempUserController" class="App\Controller\TempUserController" public="false" autowire="true" abstract="true"/>
+    <service id="abstract.instanceof.App\Controller\TempUserController" class="App\Controller\TempUserController" public="false" autowire="true" autoconfigure="true" abstract="true"/>
     <service id="instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\CensoMunicipioRepository" class="App\Repository\CensoMunicipioRepository" public="false" autowire="true" abstract="true"/>
     <service id="abstract.instanceof.App\Repository\CensoMunicipioRepository" class="App\Repository\CensoMunicipioRepository" public="false" autowire="true" autoconfigure="true" abstract="true"/>
     <service id="instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\ColoniaRepository" class="App\Repository\ColoniaRepository" public="false" autowire="true" abstract="true"/>
@@ -5397,6 +5550,8 @@
     <service id="abstract.instanceof.App\Repository\PoblacionesRepository" class="App\Repository\PoblacionesRepository" public="false" autowire="true" autoconfigure="true" abstract="true"/>
     <service id="instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\ProvinciasRepository" class="App\Repository\ProvinciasRepository" public="false" autowire="true" abstract="true"/>
     <service id="abstract.instanceof.App\Repository\ProvinciasRepository" class="App\Repository\ProvinciasRepository" public="false" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id="instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\TempUserRepository" class="App\Repository\TempUserRepository" public="false" autowire="true" abstract="true"/>
+    <service id="abstract.instanceof.App\Repository\TempUserRepository" class="App\Repository\TempUserRepository" public="false" autowire="true" autoconfigure="true" abstract="true"/>
     <service id="instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\TerritorioRepository" class="App\Repository\TerritorioRepository" public="false" autowire="true" abstract="true"/>
     <service id="abstract.instanceof.App\Repository\TerritorioRepository" class="App\Repository\TerritorioRepository" public="false" autowire="true" autoconfigure="true" abstract="true"/>
     <service id="instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\TipoEdificioRepository" class="App\Repository\TipoEdificioRepository" public="false" autowire="true" abstract="true"/>
@@ -5574,7 +5729,7 @@
         <argument key="Symfony\Component\Form\Extension\Core\Type\FormType" type="service" id="form.type.form"/>
       </argument>
     </service>
-    <service id="service_locator.qazjnwu" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id="service_locator.ljawrna" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Repository\CensoMunicipioRepository" type="service" id="App\Repository\CensoMunicipioRepository"/>
@@ -5585,6 +5740,7 @@
         <argument key="App\Repository\LocNidosNoColRepository" type="service" id="App\Repository\LocNidosNoColRepository"/>
         <argument key="App\Repository\PoblacionesRepository" type="service" id="App\Repository\PoblacionesRepository"/>
         <argument key="App\Repository\ProvinciasRepository" type="service" id="App\Repository\ProvinciasRepository"/>
+        <argument key="App\Repository\TempUserRepository" type="service" id="App\Repository\TempUserRepository"/>
         <argument key="App\Repository\TerritorioRepository" type="service" id="App\Repository\TerritorioRepository"/>
         <argument key="App\Repository\TipoEdificioRepository" type="service" id="App\Repository\TipoEdificioRepository"/>
         <argument key="App\Repository\TipoPropiedadRepository" type="service" id="App\Repository\TipoPropiedadRepository"/>
@@ -5771,7 +5927,7 @@
       <argument type="service" id="api_platform.metadata.resource.metadata_factory.cached"/>
       <argument type="service" id="api_platform.metadata.property.name_collection_factory.cached"/>
       <argument type="service" id="api_platform.metadata.property.metadata_factory.cached"/>
-      <argument type="service" id="api_platform.path_segment_name_generator.underscore"/>
+      <argument type="service" id="api_platform.path_segment_name_generator.dash"/>
     </service>
     <service id="service_locator.s.m3yzc" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
       <tag name="container.service_locator"/>
@@ -6083,6 +6239,10 @@
     <service id="doctrine.orm.default_result_cache" alias="doctrine_cache.providers.doctrine.orm.default_result_cache" public="true"/>
     <service id="doctrine.orm.default_query_cache" alias="doctrine_cache.providers.doctrine.orm.default_query_cache" public="true"/>
     <service id="doctrine.orm.default_entity_manager.event_manager" alias="doctrine.dbal.default_connection.event_manager" public="false"/>
+    <service id="doctrine.orm.seo_metadata_cache" alias="doctrine_cache.providers.doctrine.orm.seo_metadata_cache" public="true"/>
+    <service id="doctrine.orm.seo_result_cache" alias="doctrine_cache.providers.doctrine.orm.seo_result_cache" public="true"/>
+    <service id="doctrine.orm.seo_query_cache" alias="doctrine_cache.providers.doctrine.orm.seo_query_cache" public="true"/>
+    <service id="doctrine.orm.seo_entity_manager.event_manager" alias="doctrine.dbal.seo_connection.event_manager" public="false"/>
     <service id="Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface" alias="security.authorization_checker" public="false"/>
     <service id="Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface" alias="security.token_storage" public="false"/>
     <service id="Symfony\Component\Security\Core\Security" alias="security.helper" public="false"/>
@@ -6117,7 +6277,7 @@
     <service id="logger" alias="monolog.logger"/>
     <service id="Psr\Log\LoggerInterface" alias="monolog.logger" public="false"/>
     <service id="api_platform.operation_path_resolver.default" alias="api_platform.operation_path_resolver.underscore"/>
-    <service id="api_platform.path_segment_name_generator" alias="api_platform.path_segment_name_generator.underscore"/>
+    <service id="api_platform.path_segment_name_generator" alias="api_platform.path_segment_name_generator.dash"/>
     <service id="api_platform.serializer" alias="serializer"/>
     <service id="api_platform.property_accessor" alias="property_accessor" public="false"/>
     <service id="api_platform.property_info" alias="property_info" public="false"/>

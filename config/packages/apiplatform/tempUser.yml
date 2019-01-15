@@ -1,0 +1,22 @@
+resources:
+    App\Entity\TempUser:
+        attributes:
+            pagination_enabled: false
+            normalization_context: 
+                groups: ['tempUser']
+            denormalization_context: 
+                groups: ['tempUser']
+            
+        collectionOperations:
+            post:
+                method: 'POST'
+                route_name: 'api_login_anonymous'
+                swagger_context:
+                    summary: 'Entramos sin usuario registrado'
+            get:
+                method: 'GET'
+
+                
+        itemOperations:
+            get:
+                method: 'GET'
