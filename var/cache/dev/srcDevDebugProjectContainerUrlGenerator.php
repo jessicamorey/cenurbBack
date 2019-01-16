@@ -87,6 +87,7 @@ class srcDevDebugProjectContainerUrlGenerator extends Symfony\Component\Routing\
         '_profiler_exception_css' => array (  0 =>   array (    0 => 'token',  ),  1 =>   array (    '_controller' => 'web_profiler.controller.exception:cssAction',  ),  2 =>   array (  ),  3 =>   array (    0 =>     array (      0 => 'text',      1 => '/exception.css',    ),    1 =>     array (      0 => 'variable',      1 => '/',      2 => '[^/]++',      3 => 'token',    ),    2 =>     array (      0 => 'text',      1 => '/_profiler',    ),  ),  4 =>   array (  ),  5 =>   array (  ),),
         'api_login_anonymous' => array (  0 =>   array (  ),  1 =>   array (    '_controller' => 'App\\Controller\\TempUserController::login',    '_api_resource_class' => 'App\\Entity\\TempUser',  ),  2 =>   array (  ),  3 =>   array (    0 =>     array (      0 => 'text',      1 => '/api/loginAnonymous',    ),  ),  4 =>   array (  ),  5 =>   array (  ),),
         'api_list_col' => array (  0 =>   array (  ),  1 =>   array (    '_controller' => 'App\\Controller\\SeoApisController::listCol',  ),  2 =>   array (  ),  3 =>   array (    0 =>     array (      0 => 'text',      1 => '/api/listCol',    ),  ),  4 =>   array (  ),  5 =>   array (  ),),
+        'api_list_no_col' => array (  0 =>   array (  ),  1 =>   array (    '_controller' => 'App\\Controller\\SeoApisController::listNoCol',  ),  2 =>   array (  ),  3 =>   array (    0 =>     array (      0 => 'text',      1 => '/api/listNoCol',    ),  ),  4 =>   array (  ),  5 =>   array (  ),),
     );
         }
     }

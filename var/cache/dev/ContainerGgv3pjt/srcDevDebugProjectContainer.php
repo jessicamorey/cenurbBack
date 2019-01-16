@@ -1,6 +1,6 @@
 <?php
 
-namespace ContainerJhg51lp;
+namespace ContainerGgv3pjt;
 
 use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -298,12 +298,20 @@ class srcDevDebugProjectContainer extends Container
             'doctrine.mapping_convert_command' => 'getDoctrine_MappingConvertCommandService.php',
             'doctrine.mapping_import_command' => 'getDoctrine_MappingImportCommandService.php',
             'doctrine.mapping_info_command' => 'getDoctrine_MappingInfoCommandService.php',
+            'doctrine.orm.container_repository_factory' => 'getDoctrine_Orm_ContainerRepositoryFactoryService.php',
             'doctrine.orm.default_entity_listener_resolver' => 'getDoctrine_Orm_DefaultEntityListenerResolverService.php',
             'doctrine.orm.default_entity_manager' => 'getDoctrine_Orm_DefaultEntityManagerService.php',
             'doctrine.orm.default_entity_manager.property_info_extractor' => 'getDoctrine_Orm_DefaultEntityManager_PropertyInfoExtractorService.php',
             'doctrine.orm.default_listeners.attach_entity_listeners' => 'getDoctrine_Orm_DefaultListeners_AttachEntityListenersService.php',
             'doctrine.orm.default_manager_configurator' => 'getDoctrine_Orm_DefaultManagerConfiguratorService.php',
+            'doctrine.orm.naming_strategy.default' => 'getDoctrine_Orm_NamingStrategy_DefaultService.php',
             'doctrine.orm.proxy_cache_warmer' => 'getDoctrine_Orm_ProxyCacheWarmerService.php',
+            'doctrine.orm.quote_strategy.default' => 'getDoctrine_Orm_QuoteStrategy_DefaultService.php',
+            'doctrine.orm.seo_entity_listener_resolver' => 'getDoctrine_Orm_SeoEntityListenerResolverService.php',
+            'doctrine.orm.seo_entity_manager' => 'getDoctrine_Orm_SeoEntityManagerService.php',
+            'doctrine.orm.seo_entity_manager.property_info_extractor' => 'getDoctrine_Orm_SeoEntityManager_PropertyInfoExtractorService.php',
+            'doctrine.orm.seo_listeners.attach_entity_listeners' => 'getDoctrine_Orm_SeoListeners_AttachEntityListenersService.php',
+            'doctrine.orm.seo_manager_configurator' => 'getDoctrine_Orm_SeoManagerConfiguratorService.php',
             'doctrine.orm.validator.unique' => 'getDoctrine_Orm_Validator_UniqueService.php',
             'doctrine.query_dql_command' => 'getDoctrine_QueryDqlCommandService.php',
             'doctrine.query_sql_command' => 'getDoctrine_QuerySqlCommandService.php',
@@ -317,6 +325,9 @@ class srcDevDebugProjectContainer extends Container
             'doctrine_cache.providers.doctrine.orm.default_metadata_cache' => 'getDoctrineCache_Providers_Doctrine_Orm_DefaultMetadataCacheService.php',
             'doctrine_cache.providers.doctrine.orm.default_query_cache' => 'getDoctrineCache_Providers_Doctrine_Orm_DefaultQueryCacheService.php',
             'doctrine_cache.providers.doctrine.orm.default_result_cache' => 'getDoctrineCache_Providers_Doctrine_Orm_DefaultResultCacheService.php',
+            'doctrine_cache.providers.doctrine.orm.seo_metadata_cache' => 'getDoctrineCache_Providers_Doctrine_Orm_SeoMetadataCacheService.php',
+            'doctrine_cache.providers.doctrine.orm.seo_query_cache' => 'getDoctrineCache_Providers_Doctrine_Orm_SeoQueryCacheService.php',
+            'doctrine_cache.providers.doctrine.orm.seo_result_cache' => 'getDoctrineCache_Providers_Doctrine_Orm_SeoResultCacheService.php',
             'doctrine_cache.stats_command' => 'getDoctrineCache_StatsCommandService.php',
             'doctrine_migrations.diff_command' => 'getDoctrineMigrations_DiffCommandService.php',
             'doctrine_migrations.execute_command' => 'getDoctrineMigrations_ExecuteCommandService.php',
@@ -649,11 +660,18 @@ class srcDevDebugProjectContainer extends Container
             'doctrine.mapping_convert_command' => true,
             'doctrine.mapping_import_command' => true,
             'doctrine.mapping_info_command' => true,
+            'doctrine.orm.container_repository_factory' => true,
             'doctrine.orm.default_entity_listener_resolver' => true,
             'doctrine.orm.default_entity_manager.property_info_extractor' => true,
             'doctrine.orm.default_listeners.attach_entity_listeners' => true,
             'doctrine.orm.default_manager_configurator' => true,
+            'doctrine.orm.naming_strategy.default' => true,
             'doctrine.orm.proxy_cache_warmer' => true,
+            'doctrine.orm.quote_strategy.default' => true,
+            'doctrine.orm.seo_entity_listener_resolver' => true,
+            'doctrine.orm.seo_entity_manager.property_info_extractor' => true,
+            'doctrine.orm.seo_listeners.attach_entity_listeners' => true,
+            'doctrine.orm.seo_manager_configurator' => true,
             'doctrine.orm.validator.unique' => true,
             'doctrine.orm.validator_initializer' => true,
             'doctrine.query_dql_command' => true,
@@ -882,6 +900,9 @@ class srcDevDebugProjectContainer extends Container
             'doctrine.orm.default_query_cache' => 'doctrine_cache.providers.doctrine.orm.default_query_cache',
             'doctrine.orm.default_result_cache' => 'doctrine_cache.providers.doctrine.orm.default_result_cache',
             'doctrine.orm.entity_manager' => 'doctrine.orm.default_entity_manager',
+            'doctrine.orm.seo_metadata_cache' => 'doctrine_cache.providers.doctrine.orm.seo_metadata_cache',
+            'doctrine.orm.seo_query_cache' => 'doctrine_cache.providers.doctrine.orm.seo_query_cache',
+            'doctrine.orm.seo_result_cache' => 'doctrine_cache.providers.doctrine.orm.seo_result_cache',
             'event_dispatcher' => 'debug.event_dispatcher',
             'mailer' => 'swiftmailer.mailer.default',
             'session.storage' => 'session.storage.native',
@@ -2291,6 +2312,9 @@ class srcDevDebugProjectContainer extends Container
         $instance->addListener('kernel.request', array(0 => function () {
             return ${($_ = isset($this->services['debug.debug_handlers_listener']) ? $this->services['debug.debug_handlers_listener'] : $this->getDebug_DebugHandlersListenerService()) && false ?: '_'};
         }, 1 => 'configure'), 2048);
+        $instance->addListener('console.command', array(0 => function () {
+            return ${($_ = isset($this->services['debug.debug_handlers_listener']) ? $this->services['debug.debug_handlers_listener'] : $this->getDebug_DebugHandlersListenerService()) && false ?: '_'};
+        }, 1 => 'configure'), 2048);
         $instance->addListener('kernel.request', array(0 => function () {
             return ${($_ = isset($this->services['router_listener']) ? $this->services['router_listener'] : $this->getRouterListenerService()) && false ?: '_'};
         }, 1 => 'onKernelRequest'), 32);
@@ -2676,11 +2700,13 @@ class srcDevDebugProjectContainer extends Container
             yield 0 => ${($_ = isset($this->services['property_info.serializer_extractor']) ? $this->services['property_info.serializer_extractor'] : $this->load('getPropertyInfo_SerializerExtractorService.php')) && false ?: '_'};
             yield 1 => ${($_ = isset($this->services['property_info.reflection_extractor']) ? $this->services['property_info.reflection_extractor'] : $this->services['property_info.reflection_extractor'] = new \Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor()) && false ?: '_'};
             yield 2 => ${($_ = isset($this->services['doctrine.orm.default_entity_manager.property_info_extractor']) ? $this->services['doctrine.orm.default_entity_manager.property_info_extractor'] : $this->load('getDoctrine_Orm_DefaultEntityManager_PropertyInfoExtractorService.php')) && false ?: '_'};
-        }, 3), new RewindableGenerator(function () {
+            yield 3 => ${($_ = isset($this->services['doctrine.orm.seo_entity_manager.property_info_extractor']) ? $this->services['doctrine.orm.seo_entity_manager.property_info_extractor'] : $this->load('getDoctrine_Orm_SeoEntityManager_PropertyInfoExtractorService.php')) && false ?: '_'};
+        }, 4), new RewindableGenerator(function () {
             yield 0 => ${($_ = isset($this->services['doctrine.orm.default_entity_manager.property_info_extractor']) ? $this->services['doctrine.orm.default_entity_manager.property_info_extractor'] : $this->load('getDoctrine_Orm_DefaultEntityManager_PropertyInfoExtractorService.php')) && false ?: '_'};
-            yield 1 => ${($_ = isset($this->services['property_info.php_doc_extractor']) ? $this->services['property_info.php_doc_extractor'] : $this->services['property_info.php_doc_extractor'] = new \Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor()) && false ?: '_'};
-            yield 2 => ${($_ = isset($this->services['property_info.reflection_extractor']) ? $this->services['property_info.reflection_extractor'] : $this->services['property_info.reflection_extractor'] = new \Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor()) && false ?: '_'};
-        }, 3), new RewindableGenerator(function () {
+            yield 1 => ${($_ = isset($this->services['doctrine.orm.seo_entity_manager.property_info_extractor']) ? $this->services['doctrine.orm.seo_entity_manager.property_info_extractor'] : $this->load('getDoctrine_Orm_SeoEntityManager_PropertyInfoExtractorService.php')) && false ?: '_'};
+            yield 2 => ${($_ = isset($this->services['property_info.php_doc_extractor']) ? $this->services['property_info.php_doc_extractor'] : $this->services['property_info.php_doc_extractor'] = new \Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor()) && false ?: '_'};
+            yield 3 => ${($_ = isset($this->services['property_info.reflection_extractor']) ? $this->services['property_info.reflection_extractor'] : $this->services['property_info.reflection_extractor'] = new \Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor()) && false ?: '_'};
+        }, 4), new RewindableGenerator(function () {
             yield 0 => ${($_ = isset($this->services['property_info.php_doc_extractor']) ? $this->services['property_info.php_doc_extractor'] : $this->services['property_info.php_doc_extractor'] = new \Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor()) && false ?: '_'};
         }, 1), new RewindableGenerator(function () {
             yield 0 => ${($_ = isset($this->services['property_info.reflection_extractor']) ? $this->services['property_info.reflection_extractor'] : $this->services['property_info.reflection_extractor'] = new \Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor()) && false ?: '_'};
@@ -3448,6 +3474,7 @@ class srcDevDebugProjectContainer extends Container
             'doctrine.class' => 'Doctrine\\Bundle\\DoctrineBundle\\Registry',
             'doctrine.entity_managers' => array(
                 'default' => 'doctrine.orm.default_entity_manager',
+                'seo' => 'doctrine.orm.seo_entity_manager',
             ),
             'doctrine.default_entity_manager' => 'default',
             'doctrine.dbal.connection_factory.types' => array(

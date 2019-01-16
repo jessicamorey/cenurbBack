@@ -43,7 +43,20 @@ class SeoApisController extends Controller{
         }
         return $mixed;
     }
+    /**
+     * https://stackoverflow.com/questions/2820723/how-to-get-base-url-with-php
+     * 
+     * @return string
+     */
     
+    function url($type,$id){
+        return sprintf(
+            "%s://%s%s",
+            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+            $_SERVER['SERVER_NAME'],
+            'public/images/'.$type.'/'.$id
+            );
+    }
     
     public function listCol(Request $request) //falta diferenciar col de nocol
     {
@@ -67,7 +80,11 @@ class SeoApisController extends Controller{
             $stmt->execute();
             $array= new ArrayCollection();
             $array=$stmt->fetchAll();
-
+            
+            //ahora añadimos a cada grupo del array el campo de la imagen
+            foreach ($array as &$group) {
+                $group["image"] = url('col', $group['ID_ESP']);
+            }
 
             return new Response(
                 json_encode( $this->utf8ize( $array ) ), 200, ['content-type' => 'text/html; charset=UTF-8']
@@ -97,6 +114,10 @@ class SeoApisController extends Controller{
         $array= new ArrayCollection();
         $array=$stmt->fetchAll();
         
+        //ahora añadimos a cada grupo del array el campo de la imagen
+        foreach ($array as &$group) {
+            $group["image"] = url('nocol', $group['ID_ESP']);
+        }
         
         return new Response(
             json_encode( $this->utf8ize( $array ) ), 200, ['content-type' => 'text/html; charset=UTF-8']

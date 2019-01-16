@@ -732,6 +732,18 @@ class srcDevDebugProjectContainerUrlMatcher extends Symfony\Bundle\FrameworkBund
                 }
                 not_api_list_col:
 
+                // api_list_no_col
+                if ('/api/listNoCol' === $pathinfo) {
+                    $ret = array (  '_controller' => 'App\\Controller\\SeoApisController::listNoCol',  '_route' => 'api_list_no_col',);
+                    if (!in_array($canonicalMethod, array('GET'))) {
+                        $allow = array_merge($allow, array('GET'));
+                        goto not_api_list_no_col;
+                    }
+
+                    return $ret;
+                }
+                not_api_list_no_col:
+
             }
 
         }

@@ -11,6 +11,7 @@ include_once $this->targetDirs[3].'/vendor/doctrine/common/lib/Doctrine/Common/E
 include_once $this->targetDirs[3].'/vendor/symfony/doctrine-bridge/ContainerAwareEventManager.php';
 include_once $this->targetDirs[3].'/vendor/doctrine/dbal/lib/Doctrine/DBAL/Driver/Connection.php';
 include_once $this->targetDirs[3].'/vendor/doctrine/dbal/lib/Doctrine/DBAL/Connection.php';
+include_once $this->targetDirs[3].'/vendor/doctrine/orm/lib/Doctrine/ORM/Tools/AttachEntityListenersListener.php';
 include_once $this->targetDirs[3].'/vendor/doctrine/doctrine-bundle/ConnectionFactory.php';
 
 $a = new \Doctrine\DBAL\Logging\LoggerChain();
@@ -20,4 +21,7 @@ $a->addLogger(${($_ = isset($this->services['doctrine.dbal.logger.profiling.seo'
 $b = new \Doctrine\DBAL\Configuration();
 $b->setSQLLogger($a);
 
-return $this->services['doctrine.dbal.seo_connection'] = ${($_ = isset($this->services['doctrine.dbal.connection_factory']) ? $this->services['doctrine.dbal.connection_factory'] : $this->services['doctrine.dbal.connection_factory'] = new \Doctrine\Bundle\DoctrineBundle\ConnectionFactory(array())) && false ?: '_'}->createConnection(array('url' => $this->getEnv('DATABASE_SEO_URL'), 'driver' => 'pdo_mysql', 'charset' => 'utf8mb4', 'host' => 'localhost', 'port' => NULL, 'user' => 'root', 'password' => NULL, 'driverOptions' => array(), 'serverVersion' => '5.7', 'defaultTableOptions' => array()), $b, new \Symfony\Bridge\Doctrine\ContainerAwareEventManager($this), array());
+$c = new \Symfony\Bridge\Doctrine\ContainerAwareEventManager($this);
+$c->addEventListener(array(0 => 'loadClassMetadata'), ${($_ = isset($this->services['doctrine.orm.seo_listeners.attach_entity_listeners']) ? $this->services['doctrine.orm.seo_listeners.attach_entity_listeners'] : $this->services['doctrine.orm.seo_listeners.attach_entity_listeners'] = new \Doctrine\ORM\Tools\AttachEntityListenersListener()) && false ?: '_'});
+
+return $this->services['doctrine.dbal.seo_connection'] = ${($_ = isset($this->services['doctrine.dbal.connection_factory']) ? $this->services['doctrine.dbal.connection_factory'] : $this->services['doctrine.dbal.connection_factory'] = new \Doctrine\Bundle\DoctrineBundle\ConnectionFactory(array())) && false ?: '_'}->createConnection(array('url' => $this->getEnv('DATABASE_SEO_URL'), 'driver' => 'pdo_mysql', 'charset' => 'utf8mb4', 'host' => 'localhost', 'port' => NULL, 'user' => 'root', 'password' => NULL, 'driverOptions' => array(), 'serverVersion' => '5.7', 'defaultTableOptions' => array()), $b, $c, array());
