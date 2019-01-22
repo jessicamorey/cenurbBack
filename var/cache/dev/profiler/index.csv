@@ -72,3 +72,17 @@ f52bbb,127.0.0.1,GET,http://localhost:8000/api/listCol,1547575094,,500
 4a2a74,127.0.0.1,GET,http://localhost:8000/api/listCol,1547575121,,500
 5df139,127.0.0.1,GET,http://localhost:8000/api/listCol,1547575148,,200
 de181d,127.0.0.1,GET,http://localhost:8000/api/listCol,1547661033,,200
+9a8be5,127.0.0.1,OPTIONS,http://localhost:8000/api/login,1548177986,,200
+2c340e,127.0.0.1,GET,http://localhost:8000/api/login,1548177987,7eac08,200
+7eac08,127.0.0.1,POST,http://localhost:8000/api/login,1548177987,,404
+09ed8e,127.0.0.1,GET,http://localhost:8000/api/login,1548178040,26121f,200
+26121f,127.0.0.1,POST,http://localhost:8000/api/login,1548178040,,404
+103037,127.0.0.1,OPTIONS,http://localhost:8000/api/loginAnonymous,1548178153,,200
+da3059,127.0.0.1,GET,http://localhost:8000/api/loginAnonymous,1548178153,e7580e,500
+e7580e,127.0.0.1,POST,http://localhost:8000/api/loginAnonymous,1548178153,,500
+a99fdf,127.0.0.1,POST,http://localhost:8000/api/loginAnonymous,1548178221,,200
+09d77a,127.0.0.1,GET,http://localhost:8000/api/loginAnonymous,1548178274,438c0b,500
+438c0b,127.0.0.1,POST,http://localhost:8000/api/loginAnonymous,1548178274,,500
+cf1854,127.0.0.1,GET,http://localhost:8000/api/loginAnonymous,1548178401,8e0290,500
+8e0290,127.0.0.1,POST,http://localhost:8000/api/loginAnonymous,1548178401,,500
+b043fc,127.0.0.1,POST,http://localhost:8000/api/loginAnonymous,1548178602,,200
